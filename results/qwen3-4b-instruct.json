@@ -1,0 +1,64 @@
+{
+  "measured_at_utc": "2026-09-26T03:53:31.822481+00:00",
+  "host_os": "Windows",
+  "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU, 6144 MiB, 581.86",
+  "ollama_version": "0.34.4",
+  "model": "qwen3:4b-instruct",
+  "model_digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+  "model_size_bytes": 2497293803,
+  "model_details": {
+    "parent_model": "",
+    "format": "gguf",
+    "family": "qwen3",
+    "families": [
+      "qwen3"
+    ],
+    "parameter_size": "4.0B",
+    "quantization_level": "Q4_K_M",
+    "context_length": 262144,
+    "embedding_length": 2560
+  },
+  "loaded_model_size_bytes": 3178149969,
+  "loaded_model_vram_bytes": 3178149969,
+  "prompt": "In exactly three numbered lines, explain these non-invasive checks for a monitor with no image: power indicator, cable seating, and selected input source. Do not add other checks. /no_think",
+  "warm_generation_tokens_per_second_mean": 40.03,
+  "runs": [
+    {
+      "phase": "cold",
+      "total_ms": 6149.96,
+      "load_ms": 4594.01,
+      "prompt_tokens": 48,
+      "output_tokens": 54,
+      "generation_tokens_per_second": 40.57,
+      "response": "1. Verify the power indicator is lit to confirm the monitor is receiving power.  \n2. Ensure the video cable is securely seated at both the monitor and source ends.  \n3. Confirm the correct input source is selected using the monitor’s input switch or button."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 1372.44,
+      "load_ms": 1.27,
+      "prompt_tokens": 48,
+      "output_tokens": 53,
+      "generation_tokens_per_second": 40.32,
+      "response": "1. Verify the power indicator is lit to confirm the monitor is receiving power.  \n2. Ensure all cables are securely seated at both the monitor and source ends.  \n3. Confirm the correct input source is selected using the monitor’s input switch or button."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 1419.15,
+      "load_ms": 2.02,
+      "prompt_tokens": 48,
+      "output_tokens": 53,
+      "generation_tokens_per_second": 39.36,
+      "response": "1. Verify the power indicator is lit to confirm the monitor is receiving power.  \n2. Ensure all cables are securely seated at both the monitor and source ends.  \n3. Confirm the correct input source is selected using the monitor’s input switch or button."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 1345.46,
+      "load_ms": 1.36,
+      "prompt_tokens": 48,
+      "output_tokens": 53,
+      "generation_tokens_per_second": 40.41,
+      "response": "1. Verify the power indicator is lit to confirm the monitor is receiving power.  \n2. Ensure all cables are securely seated at both the monitor and source ends.  \n3. Confirm the correct input source is selected using the monitor’s input switch or button."
+    }
+  ]
+}
+
