@@ -1,0 +1,64 @@
+{
+  "measured_at_utc": "2026-09-26T03:48:10.876060+00:00",
+  "host_os": "Windows",
+  "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU, 6144 MiB, 581.86",
+  "ollama_version": "0.34.4",
+  "model": "qwen3:1.7b",
+  "model_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+  "model_size_bytes": 1359293444,
+  "model_details": {
+    "parent_model": "",
+    "format": "gguf",
+    "family": "qwen3",
+    "families": [
+      "qwen3"
+    ],
+    "parameter_size": "2.0B",
+    "quantization_level": "Q4_K_M",
+    "context_length": 40960,
+    "embedding_length": 2048
+  },
+  "loaded_model_size_bytes": 1702593821,
+  "loaded_model_vram_bytes": 1702593821,
+  "prompt": "In exactly three numbered lines, explain these non-invasive checks for a monitor with no image: power indicator, cable seating, and selected input source. Do not add other checks.",
+  "warm_generation_tokens_per_second_mean": 74.16,
+  "runs": [
+    {
+      "phase": "cold",
+      "total_ms": 1166.3,
+      "load_ms": 1.58,
+      "prompt_tokens": 52,
+      "output_tokens": 87,
+      "generation_tokens_per_second": 77.36,
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** by ensuring the cable is properly connected to both the monitor and the source device.  \n3. **Confirm the selected input source** by checking the input menu on the monitor or using the source selection buttons."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 1234.85,
+      "load_ms": 2.06,
+      "prompt_tokens": 52,
+      "output_tokens": 87,
+      "generation_tokens_per_second": 72.1,
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** by ensuring the cable is properly connected to both the monitor and the source device.  \n3. **Confirm the selected input source** by checking the input menu on the monitor or using the source selection button."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 1153.09,
+      "load_ms": 2.28,
+      "prompt_tokens": 52,
+      "output_tokens": 87,
+      "generation_tokens_per_second": 77.48,
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** by ensuring the cable is properly connected to both the monitor and the source device.  \n3. **Confirm the selected input source** by checking the input menu on the monitor or using the source selection button."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 1213.26,
+      "load_ms": 1.76,
+      "prompt_tokens": 52,
+      "output_tokens": 87,
+      "generation_tokens_per_second": 72.89,
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** by ensuring the cable is properly connected to both the monitor and the source device.  \n3. **Confirm the selected input source** by checking the input menu on the monitor or using the source selection button."
+    }
+  ]
+}
+
