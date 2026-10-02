@@ -24,7 +24,7 @@
   "warm_generation_tokens_per_second_mean": 74.16,
   "runs": [
     {
-      "phase": "cold",
+      "phase": "initial",
       "total_ms": 1166.3,
       "load_ms": 1.58,
       "prompt_tokens": 52,
