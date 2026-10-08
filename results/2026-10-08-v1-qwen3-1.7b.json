@@ -1,0 +1,69 @@
+{
+  "format": "rtx-local-llm-lab",
+  "version": 1,
+  "measured_at_utc": "2026-10-08T03:30:36.688687+00:00",
+  "host_os": "Windows",
+  "python_version": "3.12.14",
+  "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU, 6144 MiB, 616.92",
+  "ollama_version": "0.35.0",
+  "model": "qwen3:1.7b",
+  "model_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+  "model_size_bytes": 1359293444,
+  "model_details": {
+    "parent_model": "",
+    "format": "gguf",
+    "family": "qwen3",
+    "families": [
+      "qwen3"
+    ],
+    "parameter_size": "2.0B",
+    "quantization_level": "Q4_K_M",
+    "context_length": 40960,
+    "embedding_length": 2048
+  },
+  "initial_model_loaded": false,
+  "loaded_model_size_bytes": 1702593821,
+  "loaded_model_vram_bytes": 1702593821,
+  "prompt": "In exactly three numbered lines, explain these non-invasive checks for a monitor with no image: power indicator, cable seating, and selected input source. Do not add other checks. /no_think",
+  "request_settings": {
+    "temperature": 0,
+    "num_predict": 120,
+    "num_ctx": 4096,
+    "think": false,
+    "keep_alive": "10m"
+  },
+  "loaded_context_length": 4096,
+  "warm_generation_tokens_per_second_mean": 111.87,
+  "runs": [
+    {
+      "phase": "cold",
+      "total_ms": 52236.2,
+      "load_ms": 27802.81,
+      "prompt_tokens": 56,
+      "output_tokens": 75,
+      "generation_tokens_per_second": 9.49,
+      "done_reason": "stop",
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** to ensure the cable is properly connected and seated.  \n3. **Confirm the selected input source** by checking the display settings or menu options."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 691.05,
+      "load_ms": 2.61,
+      "prompt_tokens": 56,
+      "output_tokens": 75,
+      "generation_tokens_per_second": 111.83,
+      "done_reason": "stop",
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** to ensure the cable is properly connected and seated.  \n3. **Confirm the selected input source** by checking the display settings or menu options."
+    },
+    {
+      "phase": "warm",
+      "total_ms": 686.99,
+      "load_ms": 2.07,
+      "prompt_tokens": 56,
+      "output_tokens": 75,
+      "generation_tokens_per_second": 111.9,
+      "done_reason": "stop",
+      "response": "In exactly three numbered lines, here are the non-invasive checks for a monitor with no image:\n\n1. **Check the power indicator** to confirm the monitor is receiving power.  \n2. **Verify the cable seating** to ensure the cable is properly connected and seated.  \n3. **Confirm the selected input source** by checking the display settings or menu options."
+    }
+  ]
+}

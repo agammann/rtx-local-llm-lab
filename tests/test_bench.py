@@ -12,7 +12,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "bench.py"
 
 
 class BenchmarkTests(unittest.TestCase):
-    def run_benchmark(self, resident=False, invalid=None):
+    def run_benchmark(self, resident=False, invalid=None, get_overrides=None, existing=False, overwrite=False):
         calls = []
         model = {"name": "fixture:latest", "digest": "fixture-digest", "size": 123, "size_vram": 0}
 
@@ -28,12 +28,15 @@ class BenchmarkTests(unittest.TestCase):
                     body = {"models": [model]}
                 else:
                     body = {"models": [model] if resident or "/api/generate" in calls else []}
+                if get_overrides and self.path in get_overrides:
+                    body = get_overrides[self.path]
                 self.reply(body)
 
             def do_POST(self):
                 request = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
                 calls.append(self.path)
                 assert request["stream"] is False
+                assert request["options"]["num_ctx"] == 4096
                 body = {"done": True, "done_reason": "stop", "response": "fixture response",
                         "total_duration": 2_000_000_000, "load_duration": 1_000_000,
                         "eval_duration": 1_000_000_000, "eval_count": 10}
@@ -54,9 +57,14 @@ class BenchmarkTests(unittest.TestCase):
             worker.start()
             try:
                 output = Path(tmp) / "result.json"
-                result = subprocess.run([sys.executable, str(SCRIPT), "--url",
+                if existing:
+                    output.write_text('{"previous": true}')
+                command = [sys.executable, str(SCRIPT), "--url",
                     f"http://127.0.0.1:{server.server_port}", "--model", model["name"],
-                    "--runs", "2", "--output", str(output)], capture_output=True, text=True, timeout=30)
+                    "--runs", "2", "--output", str(output)]
+                if overwrite:
+                    command.append("--overwrite")
+                result = subprocess.run(command, capture_output=True, text=True, timeout=30)
                 record = json.loads(output.read_text()) if output.exists() else None
                 return result, record, calls
             finally:
@@ -85,6 +93,52 @@ class BenchmarkTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 1)
                 self.assertIn("Benchmark failed:", result.stderr)
                 self.assertNotIn("Traceback", result.stderr)
+                self.assertIsNone(record)
+
+    def test_existing_output_is_preserved_before_any_model_request(self):
+        result, record, calls = self.run_benchmark(existing=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(record, {"previous": True})
+        self.assertEqual(calls, [])
+        self.assertIn("output already exists", result.stderr)
+
+    def test_explicit_overwrite_requires_complete_valid_measurements(self):
+        result, record, _calls = self.run_benchmark(existing=True, overwrite=True, invalid={"done": False})
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(record, {"previous": True})
+        result, record, _calls = self.run_benchmark(existing=True, overwrite=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(record["format"], "rtx-local-llm-lab")
+        self.assertEqual(record["request_settings"]["num_ctx"], 4096)
+
+    def test_unavailable_model_and_malformed_metadata_stop_before_generation(self):
+        for body, code in [({"models": []}, 2), ({"models": "not a list"}, 1), ({"error": "fixture unavailable"}, 1)]:
+            with self.subTest(body=body):
+                result, record, calls = self.run_benchmark(get_overrides={"/api/tags": body})
+                self.assertEqual(result.returncode, code)
+                self.assertIsNone(record)
+                self.assertNotIn("/api/generate", calls)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_unavailable_endpoint_reports_failure_without_result(self):
+        with ThreadingHTTPServer(("127.0.0.1", 0), BaseHTTPRequestHandler) as server, tempfile.TemporaryDirectory() as tmp:
+            port = server.server_port
+            server.server_close()
+            output = Path(tmp) / "result.json"
+            result = subprocess.run([sys.executable, str(SCRIPT), "--url", f"http://127.0.0.1:{port}", "--timeout", "1", "--output", str(output)], capture_output=True, text=True, timeout=5)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("Benchmark failed", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertFalse(output.exists())
+
+    def test_remote_models_are_rejected_before_generation(self):
+        for field in ['remote_host', 'remote_model']:
+            with self.subTest(field=field):
+                body = {'models': [{'name': 'fixture:latest', 'digest': 'fixture-digest', field: 'remote-fixture'}]}
+                result, record, calls = self.run_benchmark(get_overrides={'/api/tags': body})
+                self.assertEqual(result.returncode, 1)
+                self.assertIn('selected model is remote', result.stderr)
+                self.assertNotIn('/api/generate', calls)
                 self.assertIsNone(record)
 
 
