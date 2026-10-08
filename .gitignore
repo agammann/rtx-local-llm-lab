@@ -1,6 +1,10 @@
 __pycache__/
 *.pyc
 .venv/
+.env
+.env.*
 *.gguf
 *.safetensors
-
+release-artifacts/
+verification-artifacts/
+outputs/
