@@ -23,6 +23,16 @@ PROMPT = (
 VERSION = "1.0.0"
 
 
+class RejectRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, new_url):
+        raise RuntimeError("local Ollama endpoint attempted a redirect")
+
+
+# Requests to the selected loopback endpoint must not use a proxy or follow a
+# response that could point to another host.
+LOCAL_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), RejectRedirect)
+
+
 def api_json(base_url, path, payload=None, timeout=180):
     data = None if payload is None else json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
@@ -30,7 +40,7 @@ def api_json(base_url, path, payload=None, timeout=180):
         data=data,
         headers={"Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+    with LOCAL_OPENER.open(request, timeout=timeout) as response:
         result = json.load(response)
     if not isinstance(result, dict):
         raise RuntimeError(f"{path} did not return a JSON object")

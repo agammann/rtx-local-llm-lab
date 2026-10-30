@@ -7,6 +7,7 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import bench
 
 SCRIPT = Path(__file__).resolve().parents[1] / "bench.py"
 
@@ -140,6 +141,54 @@ class BenchmarkTests(unittest.TestCase):
                 self.assertIn('selected model is remote', result.stderr)
                 self.assertNotIn('/api/generate', calls)
                 self.assertIsNone(record)
+
+    def test_api_refuses_redirects_before_contacting_a_second_server(self):
+        contacted = []
+
+        class Target(BaseHTTPRequestHandler):
+            def log_message(self, *_args):
+                pass
+
+            def do_GET(self):
+                contacted.append(self.path)
+                body = b'{"version":"fixture"}'
+                self.send_response(200)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            do_POST = do_GET
+
+        with ThreadingHTTPServer(('127.0.0.1', 0), Target) as target:
+            target_thread = threading.Thread(target=target.serve_forever, daemon=True)
+            target_thread.start()
+            try:
+                class Redirect(BaseHTTPRequestHandler):
+                    def log_message(self, *_args):
+                        pass
+
+                    def do_GET(self):
+                        self.send_response(302)
+                        self.send_header('Location', f'http://127.0.0.1:{target.server_port}/api/version')
+                        self.end_headers()
+
+                    do_POST = do_GET
+
+                with ThreadingHTTPServer(('127.0.0.1', 0), Redirect) as source:
+                    source_thread = threading.Thread(target=source.serve_forever, daemon=True)
+                    source_thread.start()
+                    try:
+                        for payload in (None, {'prompt': 'synthetic'}):
+                            with self.subTest(payload=payload):
+                                with self.assertRaisesRegex(RuntimeError, 'redirect'):
+                                    bench.api_json(f'http://127.0.0.1:{source.server_port}', '/api/version', payload=payload, timeout=2)
+                        self.assertEqual(contacted, [])
+                    finally:
+                        source.shutdown()
+                        source_thread.join()
+            finally:
+                target.shutdown()
+                target_thread.join()
 
 
 if __name__ == "__main__":
