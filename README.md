@@ -27,7 +27,7 @@ If another local server uses a different port, pass it explicitly:
 python .\bench.py --url http://127.0.0.1:11435 --model qwen3:1.7b --output outputs\another-session.json
 ```
 
-The tool accepts loopback HTTP endpoints (`127.0.0.1`, `localhost` or `::1`). It records GPU metadata from this computer, so remote servers are outside its scope. Use the exact installed tag from `ollama list`; the tool checks it before generation. It does not download models, force GPU placement, start a server or unload another session's model.
+The tool accepts loopback HTTP endpoints (`127.0.0.1`, `localhost` or `::1`). It connects directly without a proxy and refuses HTTP redirects, keeping requests at the selected local endpoint. It records GPU metadata from this computer, so remote servers are outside its scope. Use the exact installed tag from `ollama list`; the tool checks it before generation. It does not download models, force GPU placement, start a server or unload another session's model.
 
 If you started the model solely for this session, unload it when finished:
 
