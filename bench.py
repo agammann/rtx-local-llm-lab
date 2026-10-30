@@ -20,7 +20,7 @@ PROMPT = (
     "monitor with no image: power indicator, cable seating, and selected input "
     "source. Do not add other checks. /no_think"
 )
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
 
 class RejectRedirect(urllib.request.HTTPRedirectHandler):

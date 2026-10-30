@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Benchmark requests now stay at the selected loopback endpoint: proxy handling is disabled and HTTP redirects are rejected.
+- Synthetic GET and POST redirect regressions cover the local connection boundary without requiring Ollama or a GPU.
+- Earlier result files and the v1.0.0 release remain unchanged.
+
 ## 1.0.0
 
 - The default endpoint matches Ollama's desktop port 11434; context length is explicit and recorded with the request settings.

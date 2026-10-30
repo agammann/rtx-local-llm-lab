@@ -1,11 +1,11 @@
 # RTX Local LLM Lab v1
 
-Version 1.0.0 is a Python command-line measurement tool for a local Ollama runtime. It uses a fixed public prompt, records the exact installed model digest and available runtime details, distinguishes initial residency, and calculates generation throughput from Ollama's own counters. It does not rank models or establish general answer quality.
+Version 1.0.1 is a Python command-line measurement tool for a local Ollama runtime. It uses a fixed public prompt, records the exact installed model digest and available runtime details, distinguishes initial residency, and calculates generation throughput from Ollama's own counters. It does not rank models or establish general answer quality.
 
 ## Supported behavior
 
 - Python 3.10 or newer, with no additional Python packages. Protocol and source-consumer checks run on Windows, macOS and Linux; the real Ollama/GPU acceptance run used Windows, Ollama 0.35.0 and an NVIDIA RTX 3050 laptop GPU.
-- Loopback HTTP Ollama endpoints, including a nondefault local port. The default is the desktop runtime's port 11434. Locally installed weights only; reported remote/cloud model descriptors are rejected before generation. The script does not download weights, start servers, force GPU placement or select a hosted provider.
+- Loopback HTTP Ollama endpoints, including a nondefault local port. The default is the desktop runtime's port 11434. Requests connect directly without a proxy and reject redirects. Locally installed weights only; reported remote/cloud model descriptors are rejected before generation. The script does not download weights, start servers, force GPU placement or select a hosted provider.
 - An initial request followed by the requested number of warm requests. The initial request is excluded from the mean. Context length is requested explicitly and the runtime's reported loaded context is recorded separately.
 - Zero VRAM is a valid CPU allocation. `done_reason: length` remains visible when a response reaches the output cap. Formatting and factual quality need separate review.
 - Results are written only after every required measurement succeeds. Existing files are preserved unless `--overwrite` is explicit; failure still preserves an earlier result. Output creation exposes a completed temporary file, rather than a partly written JSON result.

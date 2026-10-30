@@ -7,8 +7,8 @@ This is a small command-line lab for developers. It uses Python's standard libra
 ## Get a first result
 
 1. Install **Python 3.10 or newer** and [Ollama](https://ollama.com/download). The real v1 check used native Windows Ollama **0.35.0**. Start Ollama and leave it running.
-2. Download `rtx-local-llm-lab_1.0.0_source.zip` and `SHA256SUMS` from the [v1.0.0 release](https://github.com/agammann/rtx-local-llm-lab/releases/tag/v1.0.0), verify the checksum and extract the archive.
-3. Open a terminal in the extracted `rtx-local-llm-lab_1.0.0` folder. In PowerShell:
+2. Download `rtx-local-llm-lab_1.0.1_source.zip` and `SHA256SUMS` from the [v1.0.1 release](https://github.com/agammann/rtx-local-llm-lab/releases/tag/v1.0.1), verify the checksum and extract the archive.
+3. Open a terminal in the extracted `rtx-local-llm-lab_1.0.1` folder. In PowerShell:
 
 ```powershell
 python .\bench.py --version
@@ -82,7 +82,7 @@ Each earlier mean uses three warm requests. The original script did not inspect 
 Developers can clone the pinned source tag instead of downloading the release ZIP:
 
 ```powershell
-git clone --branch v1.0.0 --depth 1 https://github.com/agammann/rtx-local-llm-lab.git
+git clone --branch v1.0.1 --depth 1 https://github.com/agammann/rtx-local-llm-lab.git
 cd rtx-local-llm-lab
 python -m unittest discover -s tests -v
 python .\bench.py --help
