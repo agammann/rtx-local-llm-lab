@@ -7,8 +7,8 @@ This is a small command-line lab for developers. It uses Python's standard libra
 ## Get a first result
 
 1. Install **Python 3.10 or newer** and [Ollama](https://ollama.com/download). The real v1 check used native Windows Ollama **0.35.0**. Start Ollama and leave it running.
-2. Download `rtx-local-llm-lab_1.0.1_source.zip` and `SHA256SUMS` from the [v1.0.1 release](https://github.com/agammann/rtx-local-llm-lab/releases/tag/v1.0.1), verify the checksum and extract the archive.
-3. Open a terminal in the extracted `rtx-local-llm-lab_1.0.1` folder. In PowerShell:
+2. Download `rtx-local-llm-lab_1.0.2_source.zip` and `SHA256SUMS` from the [v1.0.2 release](https://github.com/agammann/rtx-local-llm-lab/releases/tag/v1.0.2), verify the checksum and extract the archive.
+3. Open a terminal in the extracted `rtx-local-llm-lab_1.0.2` folder. In PowerShell:
 
 ```powershell
 python .\bench.py --version
@@ -19,7 +19,7 @@ ollama ps
 
 Models reported as remote or cloud are rejected before generation. The tool uses locally installed weights only.
 
-The default endpoint is `http://127.0.0.1:11434`, Ollama's desktop port. A first result makes **three requests**: one initial request and two measured warm requests. The output names the file saved, its warm mean generation rate and Ollama's VRAM figure. Open the JSON to inspect every response and timing. The source release contains no model weights; `ollama pull` separately downloads the selected model.
+The default endpoint is `http://127.0.0.1:11434`, Ollama's desktop port. A first result makes **three generation requests**, one initial request and two measured warm requests, plus metadata reads. The output names the file saved, its warm mean generation rate and Ollama's VRAM figure. Open the JSON to inspect every response and timing. The source release contains no model weights; `ollama pull` separately downloads the selected model.
 
 If another local server uses a different port, pass it explicitly:
 
@@ -28,6 +28,8 @@ python .\bench.py --url http://127.0.0.1:11435 --model qwen3:1.7b --output outpu
 ```
 
 The tool accepts loopback HTTP endpoints (`127.0.0.1`, `localhost` or `::1`). It connects directly without a proxy and refuses HTTP redirects, keeping requests at the selected local endpoint. It records GPU metadata from this computer, so remote servers are outside its scope. Use the exact installed tag from `ollama list`; the tool checks it before generation. It does not download models, force GPU placement, start a server or unload another session's model.
+
+The installed model must report a nonblank string digest before generation. Reported loaded digests select residency and final allocation. Runtime entries that omit their digest can match the selected tag. A final digest mismatch stops the measurement and preserves an earlier output file.
 
 If you started the model solely for this session, unload it when finished:
 
@@ -47,7 +49,7 @@ python .\bench.py --model qwen3:1.7b --runs 3 --context 4096 --timeout 180 --out
 
 | Field | Meaning |
 | :--- | :--- |
-| `initial_model_loaded` | Whether `/api/ps` reported the model or its digest before the first request |
+| `initial_model_loaded` | Whether `/api/ps` reported the selected digest before the first request, with tag fallback when digest metadata is absent |
 | `cold` / `warmup` | Initial request with no reported loaded model / an already resident model |
 | `warm_generation_tokens_per_second_mean` | Mean of the subsequent per-request generation rates; excludes the initial request |
 | `generation_tokens_per_second` | `eval_count / (eval_duration / 1e9)`, rounded to two decimals |
@@ -82,7 +84,7 @@ Each earlier mean uses three warm requests. The original script did not inspect 
 Developers can clone the pinned source tag instead of downloading the release ZIP:
 
 ```powershell
-git clone --branch v1.0.1 --depth 1 https://github.com/agammann/rtx-local-llm-lab.git
+git clone --branch v1.0.2 --depth 1 https://github.com/agammann/rtx-local-llm-lab.git
 cd rtx-local-llm-lab
 python -m unittest discover -s tests -v
 python .\bench.py --help

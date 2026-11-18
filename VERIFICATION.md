@@ -1,5 +1,11 @@
 # Verification
 
+## November 17, 2026 — 1.0.2 checks
+
+All 14 protocol tests passed on Python 3.12.14 using the actual CLI with temporary loopback fixtures. Missing, null, blank and non-string installed digests stop before generation. An older resident digest leaves the selected build cold, and a final identity mismatch preserves an earlier output even with explicit overwrite.
+
+Matching digest aliases remain supported. An exact digest entry takes precedence over an earlier same-tag entry without digest metadata, so allocation and context come from the selected build. A tag-only runtime entry remains compatible when no exact entry is available. The tests require no model weights or GPU and retain the existing request, counter and output contracts.
+
 ## October 8, 2026 UTC v1 check
 
 The exact current nine-file native source baseline was reconstructed before changes. The existing three protocol tests passed. Eight current tests now exercise the actual CLI against a loopback fixture: resident/unloaded labels, the warm mean, zero-VRAM CPU allocation, invalid counters/metadata, unavailable models/endpoints, remote-model rejection and preservation of existing output files. They make no model or paid request.

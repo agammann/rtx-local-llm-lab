@@ -20,7 +20,7 @@ PROMPT = (
     "monitor with no image: power indicator, cable seating, and selected input "
     "source. Do not add other checks. /no_think"
 )
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 
 class RejectRedirect(urllib.request.HTTPRedirectHandler):
@@ -54,6 +54,13 @@ def models(response, endpoint):
     if not isinstance(items, list) or not all(isinstance(item, dict) for item in items):
         raise RuntimeError(f"{endpoint} did not return a model list")
     return items
+
+
+def matching_loaded_model(items, name, digest):
+    exact = next((item for item in items if item.get("digest") == digest), None)
+    if exact is not None:
+        return exact
+    return next((item for item in items if "digest" not in item and item.get("name") == name), None)
 
 
 def save_record(output, content, overwrite=False):
@@ -133,12 +140,12 @@ def main():
         if installed.get("remote_host") or installed.get("remote_model"):
             raise RuntimeError("the selected model is remote; choose locally installed weights")
 
+        model_digest = installed.get("digest")
+        if not isinstance(model_digest, str) or not model_digest.strip():
+            raise RuntimeError("/api/tags did not report a valid model digest")
+
         running_before = models(request("/api/ps"), "/api/ps")
-        initial_model_loaded = any(
-            item.get("name") == args.model
-            or (installed.get("digest") and item.get("digest") == installed["digest"])
-            for item in running_before
-        )
+        initial_model_loaded = matching_loaded_model(running_before, args.model, model_digest) is not None
         responses = []
         # A previously loaded model has a warm-up request, not a cold load.
         for index in range(args.runs + 1):
@@ -171,9 +178,9 @@ def main():
             })
 
         running = models(request("/api/ps"), "/api/ps")
-        loaded = next((item for item in running if item.get("name") == args.model or (installed.get("digest") and item.get("digest") == installed["digest"])), None)
+        loaded = matching_loaded_model(running, args.model, model_digest)
         if loaded is None:
-            raise RuntimeError("model is not listed by /api/ps after inference")
+            raise RuntimeError("selected model digest is not listed by /api/ps after inference")
         if type(loaded.get("size_vram")) is not int or loaded["size_vram"] < 0:
             raise RuntimeError("/api/ps did not report a valid VRAM allocation")
         warm = [item["generation_tokens_per_second"] for item in responses[1:]]
@@ -186,7 +193,7 @@ def main():
             "gpu": gpu_info(),
             "ollama_version": version,
             "model": args.model,
-            "model_digest": installed.get("digest"),
+            "model_digest": model_digest,
             "model_size_bytes": installed.get("size"),
             "model_details": installed.get("details"),
             "initial_model_loaded": initial_model_loaded,
