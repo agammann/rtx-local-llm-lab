@@ -10,6 +10,8 @@ python bench.py --help
 
 `api_json` calls Ollama's local JSON API. `models` validates model-list responses, and `tokens_per_second` rejects missing/noninteger/zero generation counters. Results include every measured response, the installed model digest and request settings; the warm mean excludes the initial request. GPU metadata is optional and separate from allocation reported by Ollama.
 
+The installed digest must be a nonblank string. `matching_loaded_model` uses an exact reported digest, including aliases, and permits tag matching when a loaded entry omits the digest field. A different resident build leaves the selected digest cold. Final identity mismatches fail before publishing a result, including explicit overwrite.
+
 The tests start a loopback HTTP fixture and invoke the actual CLI as a subprocess. They prove request/error/storage behavior, not real inference speed or model quality. Keep a new prompt or performance experiment separate from those protocol expectations and retain its first outcome. A model, runtime, driver or context change needs a new record, rather than editing an older result.
 
 ## Result contract

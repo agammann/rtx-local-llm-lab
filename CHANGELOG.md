@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+- Require a nonblank installed model digest before generation.
+- Match reported loaded digests for residency and final allocation, with tag fallback when digest metadata is omitted. Preserve earlier output on a final identity mismatch.
+- Clarify that the first-result example makes three generation requests plus metadata reads.
+
 ## 1.0.1
 
 - Benchmark requests now stay at the selected loopback endpoint: proxy handling is disabled and HTTP redirects are rejected.

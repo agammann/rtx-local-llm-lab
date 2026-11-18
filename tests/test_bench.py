@@ -30,7 +30,8 @@ class BenchmarkTests(unittest.TestCase):
                 else:
                     body = {"models": [model] if resident or "/api/generate" in calls else []}
                 if get_overrides and self.path in get_overrides:
-                    body = get_overrides[self.path]
+                    override = get_overrides[self.path]
+                    body = override(calls) if callable(override) else override
                 self.reply(body)
 
             def do_POST(self):
@@ -86,6 +87,58 @@ class BenchmarkTests(unittest.TestCase):
         self.assertFalse(record["initial_model_loaded"])
         self.assertEqual(record["runs"][0]["phase"], "cold")
         self.assertEqual(record["loaded_model_vram_bytes"], 0)
+
+    def test_invalid_installed_digest_stops_before_generation(self):
+        for metadata in ({}, {"digest": None}, {"digest": "  "}, {"digest": 123}):
+            with self.subTest(metadata=metadata):
+                model = {"name": "fixture:latest", **metadata}
+                result, record, calls = self.run_benchmark(get_overrides={"/api/tags": {"models": [model]}})
+                self.assertEqual(result.returncode, 1)
+                self.assertIn("valid model digest", result.stderr)
+                self.assertIsNone(record)
+                self.assertNotIn("/api/generate", calls)
+
+    def test_invalid_installed_digest_preserves_an_existing_output(self):
+        result, record, calls = self.run_benchmark(existing=True, overwrite=True,
+            get_overrides={"/api/tags": {"models": [{"name": "fixture:latest", "digest": ""}]}})
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(record, {"previous": True})
+        self.assertNotIn("/api/generate", calls)
+
+    def test_old_resident_digest_is_cold_until_the_selected_digest_loads(self):
+        def running(calls):
+            digest = "fixture-digest" if "/api/generate" in calls else "previous-build"
+            return {"models": [{"name": "fixture:latest", "digest": digest, "size_vram": 0}]}
+        result, record, _calls = self.run_benchmark(get_overrides={"/api/ps": running})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(record["initial_model_loaded"])
+        self.assertEqual(record["runs"][0]["phase"], "cold")
+        self.assertEqual(record["model_digest"], "fixture-digest")
+
+    def test_matching_digest_alias_and_omitted_digest_remain_compatible(self):
+        for entries in ([{"name": "fixture-alias", "digest": "fixture-digest"}], [{"name": "fixture:latest"}],
+                        [{"name": "fixture:latest", "size_vram": 999, "context_length": 999},
+                         {"name": "fixture-alias", "digest": "fixture-digest"}]):
+            with self.subTest(entries=entries):
+                result, record, _calls = self.run_benchmark(get_overrides={"/api/ps": {
+                    "models": [{"size_vram": 0, "context_length": 4096, **item} for item in entries]}})
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue(record["initial_model_loaded"])
+                self.assertEqual(record["loaded_context_length"], 4096)
+                self.assertEqual(record["loaded_model_vram_bytes"], 0)
+
+    def test_changed_loaded_digest_preserves_an_existing_output(self):
+        for digest in ("different-build", None, "", 123):
+            with self.subTest(digest=digest):
+                def running(calls):
+                    return {"models": [{"name": "fixture:latest", "digest": digest, "size_vram": 0}]
+                            if "/api/generate" in calls else []}
+                result, record, calls = self.run_benchmark(existing=True, overwrite=True,
+                    get_overrides={"/api/ps": running})
+                self.assertEqual(result.returncode, 1)
+                self.assertIn("selected model digest", result.stderr)
+                self.assertEqual(record, {"previous": True})
+                self.assertEqual(calls.count("/api/generate"), 3)
 
     def test_invalid_measurements_fail_without_writing_results(self):
         for invalid in ({"eval_duration": 0}, {"eval_count": None}, {"load_duration": -1}):
